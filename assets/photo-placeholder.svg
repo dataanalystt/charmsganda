@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 900">
+  <rect width="720" height="900" rx="40" fill="#f8e9e4"/>
+  <circle cx="360" cy="320" r="125" fill="#fff7f3" stroke="#c77c87" stroke-width="7"/>
+  <path d="M360 404c-24-36-112-88-112-150 0-44 34-78 78-78 29 0 56 16 72 41 16-25 43-41 72-41 44 0 78 34 78 78 0 62-88 114-112 150l-38 43Z" fill="#b94b5e" opacity=".92"/>
+  <text x="360" y="595" text-anchor="middle" font-family="Arial, sans-serif" font-size="42" font-weight="700" fill="#482331">YOUR PHOTO</text>
+  <text x="360" y="650" text-anchor="middle" font-family="Arial, sans-serif" font-size="26" fill="#805a67">Replace this file later</text>
+</svg>
