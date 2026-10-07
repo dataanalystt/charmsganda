@@ -984,6 +984,17 @@ video { display: block; }
   background: var(--white);
   box-shadow: 0 10px 24px rgba(72,35,49,.09);
 }
+.calendar-nav:disabled {
+  cursor: not-allowed;
+  opacity: .32;
+  transform: none;
+  box-shadow: none;
+}
+.calendar-nav:disabled:hover {
+  transform: none;
+  background: rgba(255,255,255,.72);
+  box-shadow: none;
+}
 .calendar-weekdays, .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -1019,6 +1030,22 @@ video { display: block; }
 .calendar-day.is-outside {
   color: rgba(140,109,120,.46);
   background: rgba(255,255,255,.26);
+}
+.calendar-day.is-past,
+.calendar-day:disabled {
+  cursor: not-allowed;
+  color: rgba(140,109,120,.34);
+  background: rgba(255,255,255,.24);
+  border-color: rgba(72,35,49,.045);
+  box-shadow: none;
+  opacity: .62;
+}
+.calendar-day.is-past:hover,
+.calendar-day:disabled:hover {
+  transform: none;
+  background: rgba(255,255,255,.24);
+  border-color: rgba(72,35,49,.045);
+  box-shadow: none;
 }
 .calendar-day.is-today {
   border-color: rgba(167,54,76,.34);
