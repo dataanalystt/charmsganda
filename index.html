@@ -186,21 +186,35 @@
     <!-- Day -->
     <section class="scene" data-scene="day" aria-labelledby="dayTitle">
       <div class="picker-shell">
-        <div class="picker-copy">
+        <div class="picker-copy date-picker-copy">
           <div class="step-chip">1 / 5</div>
           <h2 id="dayTitle">When am I borrowing you?</h2>
-          <p class="lead">Here are a few weekends to choose from. Pick the one that fits your schedule best. ♡</p>
+          <p class="lead">Pick the first day that works for you. I’ll automatically save that day and the next one for our two-day date. ♡</p>
         </div>
-        <div class="choice-grid date-grid" data-choice-group="day">
-          <button class="choice-card date-card" data-value="October 10–11, 2026" type="button">
-            <span class="date-month">OCT</span><strong>10–11</strong><small>Saturday + Sunday</small><em>Weekend one</em>
-          </button>
-          <button class="choice-card date-card" data-value="October 24–25, 2026" type="button">
-            <span class="date-month">OCT</span><strong>24–25</strong><small>Saturday + Sunday</small><em>Weekend two</em>
-          </button>
-          <button class="choice-card date-card" data-value="November 14–15, 2026" type="button">
-            <span class="date-month">NOV</span><strong>14–15</strong><small>Saturday + Sunday</small><em>Weekend three</em>
-          </button>
+
+        <div class="date-picker-card" aria-label="Choose the first day of our two-day date">
+          <div class="calendar-toolbar">
+            <button class="calendar-nav" id="calendarPrev" type="button" aria-label="Previous month">‹</button>
+            <div class="calendar-month-wrap">
+              <span class="calendar-kicker">Choose our date</span>
+              <strong id="calendarMonthLabel">October 2026</strong>
+            </div>
+            <button class="calendar-nav" id="calendarNext" type="button" aria-label="Next month">›</button>
+          </div>
+
+          <div class="calendar-weekdays" aria-hidden="true">
+            <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+          </div>
+          <div class="calendar-grid" id="calendarGrid" role="grid" aria-label="Calendar dates"></div>
+
+          <div class="calendar-selection" id="calendarSelection" aria-live="polite">
+            <div class="calendar-selection-copy">
+              <span class="calendar-selection-label">Our two days</span>
+              <strong id="selectedDateRange">Choose a starting date ♡</strong>
+              <small id="selectedDateHint">The following day will be selected automatically.</small>
+            </div>
+            <button class="primary-btn calendar-continue" id="confirmDateBtn" type="button" disabled>These dates work ♡</button>
+          </div>
         </div>
       </div>
     </section>
