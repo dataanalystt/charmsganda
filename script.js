@@ -225,6 +225,7 @@ function goToScene(name) {
   if (name === "ticket") updateTicket();
   if (name === "letter") resetLetterScene();
   if (name === "celebration") runCelebration();
+  if (name === "day") scheduleDayFit();
 }
 
 $$('[data-next]').forEach(btn => btn.addEventListener('click', () => goToScene(btn.dataset.next)));
@@ -306,6 +307,168 @@ $("#brandBtn").addEventListener("click", () => {
   toast(lines[Math.min(state.pokes - 1, lines.length - 1)]);
   if (state.pokes === 5) unlockAchievement("Certified Kulakatching", "Successfully annoyed Moonie.");
 });
+
+// Two-day calendar picker. Clicking one date automatically selects that day + the following day.
+const calendarGrid = $("#calendarGrid");
+const calendarMonthLabel = $("#calendarMonthLabel");
+const calendarPrev = $("#calendarPrev");
+const calendarNext = $("#calendarNext");
+const selectedDateRange = $("#selectedDateRange");
+const selectedDateHint = $("#selectedDateHint");
+const confirmDateBtn = $("#confirmDateBtn");
+
+const nowForCalendar = new Date();
+let calendarView = new Date(nowForCalendar.getFullYear(), nowForCalendar.getMonth(), 1, 12);
+let selectedStartDate = null;
+let selectedEndDate = null;
+
+function sameCalendarDay(a, b) {
+  return Boolean(a && b) &&
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate();
+}
+
+function addCalendarDays(date, days) {
+  const result = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12);
+  result.setDate(result.getDate() + days);
+  return result;
+}
+
+function dateKey(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+function formatTwoDayRange(start, end) {
+  if (!start || !end) return "";
+  const sameYear = start.getFullYear() === end.getFullYear();
+  const sameMonth = sameYear && start.getMonth() === end.getMonth();
+
+  if (sameMonth) {
+    const month = new Intl.DateTimeFormat("en-US", { month: "long" }).format(start);
+    return `${month} ${start.getDate()}–${end.getDate()}, ${start.getFullYear()}`;
+  }
+
+  if (sameYear) {
+    const first = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(start);
+    const second = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(end);
+    return `${first} – ${second}, ${start.getFullYear()}`;
+  }
+
+  const full = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" });
+  return `${full.format(start)} – ${full.format(end)}`;
+}
+
+function formatCalendarDayLong(date) {
+  return new Intl.DateTimeFormat("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric"
+  }).format(date);
+}
+
+function renderCalendar() {
+  if (!calendarGrid || !calendarMonthLabel) return;
+
+  calendarMonthLabel.textContent = new Intl.DateTimeFormat("en-US", {
+    month: "long",
+    year: "numeric"
+  }).format(calendarView);
+
+  calendarGrid.innerHTML = "";
+
+  const year = calendarView.getFullYear();
+  const month = calendarView.getMonth();
+  const firstOfMonth = new Date(year, month, 1, 12);
+  const gridStart = new Date(year, month, 1 - firstOfMonth.getDay(), 12);
+  const today = new Date();
+  today.setHours(12, 0, 0, 0);
+
+  for (let i = 0; i < 42; i++) {
+    const date = addCalendarDays(gridStart, i);
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "calendar-day";
+    btn.textContent = String(date.getDate());
+    btn.dataset.date = dateKey(date);
+    btn.setAttribute("role", "gridcell");
+    btn.setAttribute("aria-label", `Choose ${formatCalendarDayLong(date)} as the first date`);
+
+    if (date.getMonth() !== month) btn.classList.add("is-outside");
+    if (sameCalendarDay(date, today)) btn.classList.add("is-today");
+    if (sameCalendarDay(date, selectedStartDate)) {
+      btn.classList.add("is-start");
+      btn.setAttribute("aria-selected", "true");
+    }
+    if (sameCalendarDay(date, selectedEndDate)) {
+      btn.classList.add("is-end");
+      btn.setAttribute("aria-selected", "true");
+    }
+
+    btn.addEventListener("click", () => selectCalendarStart(date));
+    calendarGrid.appendChild(btn);
+  }
+
+  if (state.currentScene === "day") scheduleDayFit();
+}
+
+function selectCalendarStart(date) {
+  selectedStartDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12);
+  selectedEndDate = addCalendarDays(selectedStartDate, 1);
+  state.day = formatTwoDayRange(selectedStartDate, selectedEndDate);
+
+  selectedDateRange.textContent = state.day;
+  selectedDateHint.textContent = `${formatCalendarDayLong(selectedStartDate)} + ${formatCalendarDayLong(selectedEndDate)}`;
+  confirmDateBtn.disabled = false;
+  confirmDateBtn.setAttribute("aria-label", `Continue with ${state.day}`);
+
+  // If an outside-month date was clicked, move the calendar to that month so the pair is easier to see.
+  if (date.getMonth() !== calendarView.getMonth() || date.getFullYear() !== calendarView.getFullYear()) {
+    calendarView = new Date(date.getFullYear(), date.getMonth(), 1, 12);
+  }
+
+  renderCalendar();
+  showBuilderMoonie('happy', 'Two whole days together. Moonie approves. 🐾', true);
+  burst(innerWidth / 2, innerHeight * .62, 6, ["♡", "✦"]);
+}
+
+function resetCalendarPicker() {
+  selectedStartDate = null;
+  selectedEndDate = null;
+  const today = new Date();
+  calendarView = new Date(today.getFullYear(), today.getMonth(), 1, 12);
+  if (selectedDateRange) selectedDateRange.textContent = "Choose a starting date ♡";
+  if (selectedDateHint) selectedDateHint.textContent = "The following day will be selected automatically.";
+  if (confirmDateBtn) {
+    confirmDateBtn.disabled = true;
+    confirmDateBtn.removeAttribute("aria-label");
+  }
+  renderCalendar();
+}
+
+calendarPrev?.addEventListener("click", () => {
+  calendarView = new Date(calendarView.getFullYear(), calendarView.getMonth() - 1, 1, 12);
+  renderCalendar();
+});
+
+calendarNext?.addEventListener("click", () => {
+  calendarView = new Date(calendarView.getFullYear(), calendarView.getMonth() + 1, 1, 12);
+  renderCalendar();
+});
+
+confirmDateBtn?.addEventListener("click", () => {
+  if (!selectedStartDate || !selectedEndDate || !state.day) {
+    toast("Choose the first day first. Moonie will grab the next day too. 🐾");
+    return;
+  }
+  goToScene("food");
+});
+
+renderCalendar();
 
 // Choice-card handling.
 $$('[data-choice-group]').forEach(group => {
@@ -949,6 +1112,7 @@ function resetExperience({ silent = false } = {}) {
   noMoveLocked = false;
   Object.assign(state, { currentScene: "opening", day:"", food:"", activity:"", vibe:"", icecream:"", decision:"pending", noAttempts:0, pokes:0 });
   state.achievements.clear();
+  resetCalendarPicker();
   $$('.choice-card').forEach(c => c.classList.remove('selected', 'wrong'));
   noBtn.className = "no-btn";
   noBtn.textContent = "No";
@@ -1153,6 +1317,7 @@ function clearTransientSelections() {
   state.vibe = "";
   state.icecream = "";
   state.decision = "pending";
+  resetCalendarPicker();
   $$('.choice-card').forEach(card => card.classList.remove('selected', 'wrong'));
   const ice = $("#icecreamReaction");
   if (ice) {
@@ -1172,3 +1337,40 @@ moonieVideos.forEach(video => {
   if (!video.dataset.mood) video.dataset.mood = "neutral";
 });
 pauseMoonieVideos();
+
+// Calendar scene viewport-fit fallback.
+// CSS handles normal resizing. This only scales the day panel when browser
+// zoom or an unusually short window still leaves a few pixels outside view.
+function fitDaySceneToViewport() {
+  const scene = document.querySelector('.scene[data-scene="day"]');
+  const shell = scene?.querySelector('.picker-shell');
+  if (!scene || !shell) return;
+
+  shell.style.transform = '';
+  shell.style.marginTop = '';
+  shell.style.marginBottom = '';
+
+  if (state.currentScene !== 'day') return;
+
+  const sceneStyle = getComputedStyle(scene);
+  const padY = parseFloat(sceneStyle.paddingTop || '0') + parseFloat(sceneStyle.paddingBottom || '0');
+  const padX = parseFloat(sceneStyle.paddingLeft || '0') + parseFloat(sceneStyle.paddingRight || '0');
+  const availableH = Math.max(1, scene.clientHeight - padY);
+  const availableW = Math.max(1, scene.clientWidth - padX);
+  const naturalH = shell.scrollHeight;
+  const naturalW = shell.scrollWidth;
+
+  let scale = Math.min(1, availableH / naturalH, availableW / naturalW);
+
+  // Ignore tiny rounding differences. At extreme zoom, retain a usable size
+  // and let the scene's overflow-y:auto act as the final accessibility fallback.
+  if (scale < 0.985) {
+    scale = Math.max(0.72, scale);
+    shell.style.transform = `scale(${scale})`;
+  }
+}
+
+const scheduleDayFit = () => requestAnimationFrame(() => requestAnimationFrame(fitDaySceneToViewport));
+window.addEventListener('resize', scheduleDayFit, { passive: true });
+window.visualViewport?.addEventListener('resize', scheduleDayFit, { passive: true });
+window.addEventListener('orientationchange', scheduleDayFit, { passive: true });
