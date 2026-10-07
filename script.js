@@ -371,6 +371,11 @@ function formatCalendarDayLong(date) {
   }).format(date);
 }
 
+function getCalendarToday() {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12);
+}
+
 function renderCalendar() {
   if (!calendarGrid || !calendarMonthLabel) return;
 
@@ -385,18 +390,35 @@ function renderCalendar() {
   const month = calendarView.getMonth();
   const firstOfMonth = new Date(year, month, 1, 12);
   const gridStart = new Date(year, month, 1 - firstOfMonth.getDay(), 12);
-  const today = new Date();
-  today.setHours(12, 0, 0, 0);
+  const today = getCalendarToday();
+  const currentMonth = new Date(today.getFullYear(), today.getMonth(), 1, 12);
+
+  // A booking-style calendar should never navigate to a fully past month.
+  if (calendarPrev) {
+    const isAtCurrentMonth = calendarView <= currentMonth;
+    calendarPrev.disabled = isAtCurrentMonth;
+    calendarPrev.setAttribute("aria-disabled", String(isAtCurrentMonth));
+    calendarPrev.title = isAtCurrentMonth ? "Past months are unavailable" : "Previous month";
+  }
 
   for (let i = 0; i < 42; i++) {
     const date = addCalendarDays(gridStart, i);
+    const isPast = date < today;
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "calendar-day";
     btn.textContent = String(date.getDate());
     btn.dataset.date = dateKey(date);
     btn.setAttribute("role", "gridcell");
-    btn.setAttribute("aria-label", `Choose ${formatCalendarDayLong(date)} as the first date`);
+
+    if (isPast) {
+      btn.disabled = true;
+      btn.classList.add("is-past");
+      btn.setAttribute("aria-disabled", "true");
+      btn.setAttribute("aria-label", `${formatCalendarDayLong(date)} is unavailable because it has already passed`);
+    } else {
+      btn.setAttribute("aria-label", `Choose ${formatCalendarDayLong(date)} as the first date`);
+    }
 
     if (date.getMonth() !== month) btn.classList.add("is-outside");
     if (sameCalendarDay(date, today)) btn.classList.add("is-today");
@@ -409,7 +431,7 @@ function renderCalendar() {
       btn.setAttribute("aria-selected", "true");
     }
 
-    btn.addEventListener("click", () => selectCalendarStart(date));
+    if (!isPast) btn.addEventListener("click", () => selectCalendarStart(date));
     calendarGrid.appendChild(btn);
   }
 
@@ -417,7 +439,14 @@ function renderCalendar() {
 }
 
 function selectCalendarStart(date) {
-  selectedStartDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12);
+  const today = getCalendarToday();
+  const requestedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12);
+  if (requestedDate < today) {
+    toast("That day has already passed. Pick today or a future date. ♡");
+    return;
+  }
+
+  selectedStartDate = requestedDate;
   selectedEndDate = addCalendarDays(selectedStartDate, 1);
   state.day = formatTwoDayRange(selectedStartDate, selectedEndDate);
 
@@ -451,7 +480,11 @@ function resetCalendarPicker() {
 }
 
 calendarPrev?.addEventListener("click", () => {
-  calendarView = new Date(calendarView.getFullYear(), calendarView.getMonth() - 1, 1, 12);
+  const today = getCalendarToday();
+  const currentMonth = new Date(today.getFullYear(), today.getMonth(), 1, 12);
+  const previousMonth = new Date(calendarView.getFullYear(), calendarView.getMonth() - 1, 1, 12);
+  if (previousMonth < currentMonth) return;
+  calendarView = previousMonth;
   renderCalendar();
 });
 
