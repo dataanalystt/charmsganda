@@ -931,50 +931,162 @@ video { display: block; }
 }
 .carousel-status span:first-child { width: 18px; background: var(--deep-red); }
 
-/* --- Available weekend cards --- */
-.choice-grid.date-grid {
-  grid-template-columns: repeat(3, minmax(0,1fr));
-  width: min(950px, 100%);
+/* --- Two-day calendar picker --- */
+.date-picker-copy { margin-bottom: 22px; }
+.date-picker-card {
+  width: min(760px, 100%);
   margin-inline: auto;
-  gap: 16px;
+  padding: clamp(18px, 2.2vw, 28px);
+  border-radius: 30px;
+  background: rgba(255,253,251,.74);
+  border: 1px solid rgba(255,255,255,.92);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(18px);
 }
-.date-card {
-  min-height: min(23vh, 190px);
-  position: relative;
-  overflow: hidden;
-  isolation: isolate;
-}
-.date-card::before {
-  content: "";
-  position: absolute;
-  inset: -40% 45% 30% -20%;
-  z-index: -1;
-  background: radial-gradient(circle, rgba(201,72,93,.12), transparent 66%);
-}
-.date-card .date-month {
-  display: inline-flex;
+.calendar-toolbar {
+  display: grid;
+  grid-template-columns: 46px 1fr 46px;
   align-items: center;
-  justify-content: center;
-  min-width: 48px;
-  padding: 5px 9px;
-  border-radius: 999px;
-  background: rgba(167,54,76,.09);
-  color: var(--deep-red);
-  font-size: 10px;
-  font-weight: 950;
-  letter-spacing: .18em;
+  gap: 14px;
+  margin-bottom: 18px;
 }
-.date-card strong {
-  font-size: clamp(34px, min(3.7vw, 5.7vh), 48px);
-  line-height: 1;
-}
-.date-card em {
+.calendar-month-wrap { text-align: center; }
+.calendar-kicker {
+  display: block;
+  margin-bottom: 3px;
   color: var(--rose);
-  font-style: normal;
-  font-size: 10px;
-  font-weight: 850;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.calendar-month-wrap strong {
+  font-family: Georgia, "Times New Roman", serif;
+  color: var(--plum);
+  font-size: clamp(24px, 2.7vw, 34px);
+  letter-spacing: -.025em;
+}
+.calendar-nav {
+  width: 46px;
+  height: 46px;
+  border: 1px solid rgba(72,35,49,.1);
+  border-radius: 50%;
+  background: rgba(255,255,255,.72);
+  color: var(--plum);
+  cursor: pointer;
+  font-family: Georgia, serif;
+  font-size: 30px;
+  line-height: 1;
+  transition: transform .2s var(--ease), background .2s ease, box-shadow .2s ease;
+}
+.calendar-nav:hover {
+  transform: translateY(-2px);
+  background: var(--white);
+  box-shadow: 0 10px 24px rgba(72,35,49,.09);
+}
+.calendar-weekdays, .calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 7px;
+}
+.calendar-weekdays { margin-bottom: 7px; }
+.calendar-weekdays span {
+  padding: 4px 0;
+  text-align: center;
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 900;
   letter-spacing: .08em;
   text-transform: uppercase;
+}
+.calendar-day {
+  aspect-ratio: 1 / .78;
+  min-height: 48px;
+  border: 1px solid rgba(72,35,49,.07);
+  border-radius: 15px;
+  background: rgba(255,255,255,.58);
+  color: var(--plum);
+  cursor: pointer;
+  font-weight: 850;
+  transition: transform .18s var(--ease), background .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.calendar-day:hover {
+  transform: translateY(-2px);
+  background: #fff;
+  border-color: rgba(167,54,76,.22);
+  box-shadow: 0 8px 18px rgba(72,35,49,.07);
+}
+.calendar-day.is-outside {
+  color: rgba(140,109,120,.46);
+  background: rgba(255,255,255,.26);
+}
+.calendar-day.is-today {
+  border-color: rgba(167,54,76,.34);
+  box-shadow: inset 0 0 0 1px rgba(167,54,76,.1);
+}
+.calendar-day.is-start, .calendar-day.is-end {
+  background: var(--plum);
+  color: #fff;
+  border-color: var(--plum);
+  box-shadow: 0 10px 24px rgba(72,35,49,.18);
+}
+.calendar-day.is-start::after { content: "1"; }
+.calendar-day.is-end::after { content: "2"; }
+.calendar-day.is-start, .calendar-day.is-end { position: relative; }
+.calendar-day.is-start::after, .calendar-day.is-end::after {
+  position: absolute;
+  top: 5px;
+  right: 6px;
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.18);
+  color: #fff;
+  font-size: 8px;
+  font-weight: 950;
+}
+.calendar-selection {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 18px;
+  margin-top: 18px;
+  padding: 16px 17px 16px 20px;
+  border-radius: 20px;
+  background: rgba(244,217,215,.36);
+  border: 1px solid rgba(167,54,76,.08);
+}
+.calendar-selection-copy { min-width: 0; }
+.calendar-selection-label {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--deep-red);
+  font-size: 8px;
+  font-weight: 950;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+}
+.calendar-selection strong {
+  display: block;
+  color: var(--plum);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(18px, 2vw, 25px);
+  line-height: 1.16;
+}
+.calendar-selection small {
+  display: block;
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 10px;
+}
+.calendar-continue { min-height: 46px; white-space: nowrap; }
+.calendar-continue:disabled {
+  cursor: not-allowed;
+  opacity: .42;
+  transform: none;
+  box-shadow: none;
 }
 
 /* Four options should always form a centered, proportional row. */
@@ -1964,4 +2076,193 @@ video { display: block; }
   .scene[data-scene="intro"] #introTitle {
     white-space: nowrap;
   }
+}
+
+/* Calendar picker responsive tuning */
+@media (max-height: 820px) and (min-width: 621px) {
+  .date-picker-copy { margin-bottom: 12px; }
+  .date-picker-card { padding: 15px 20px; }
+  .calendar-toolbar { margin-bottom: 10px; }
+  .calendar-day { min-height: 38px; border-radius: 12px; }
+  .calendar-selection { margin-top: 10px; padding-block: 10px; }
+}
+
+@media (max-width: 620px) {
+  .date-picker-copy { margin-bottom: 12px; }
+  .date-picker-copy .lead { font-size: 11px; line-height: 1.45; }
+  .date-picker-card { padding: 12px; border-radius: 22px; }
+  .calendar-toolbar { grid-template-columns: 38px 1fr 38px; gap: 8px; margin-bottom: 9px; }
+  .calendar-nav { width: 38px; height: 38px; font-size: 25px; }
+  .calendar-month-wrap strong { font-size: 22px; }
+  .calendar-kicker { font-size: 7px; }
+  .calendar-weekdays, .calendar-grid { gap: 4px; }
+  .calendar-weekdays span { font-size: 7px; }
+  .calendar-day { min-height: 39px; border-radius: 11px; font-size: 12px; }
+  .calendar-day.is-start::after, .calendar-day.is-end::after { width: 13px; height: 13px; top: 3px; right: 3px; font-size: 6px; }
+  .calendar-selection { grid-template-columns: 1fr; gap: 10px; margin-top: 10px; padding: 11px 13px; text-align: center; }
+  .calendar-selection strong { font-size: 18px; }
+  .calendar-selection small { font-size: 8px; }
+  .calendar-continue { width: 100%; min-height: 42px; }
+}
+
+/* =========================================================
+   V29 - Calendar viewport/zoom fit
+   The date picker now sizes itself from the visible viewport instead of
+   relying on a fixed calendar-cell aspect ratio. Browser zoom changes the
+   CSS viewport, so these vh/vw-based dimensions shrink/grow automatically.
+   ========================================================= */
+.scene[data-scene="day"] {
+  overflow-y: auto; /* safety fallback for extreme browser zoom / tiny screens */
+  scrollbar-width: thin;
+  padding-top: clamp(58px, 8.2vh, 78px);
+  padding-bottom: clamp(10px, 1.7vh, 18px);
+}
+
+.scene[data-scene="day"] .picker-shell {
+  width: min(1120px, 100%);
+  max-height: none;
+  transform-origin: center center;
+}
+
+.scene[data-scene="day"] .date-picker-copy {
+  margin-bottom: clamp(8px, 1.7vh, 18px);
+}
+
+.scene[data-scene="day"] .step-chip {
+  padding: clamp(5px, .75vh, 8px) 13px;
+  margin-bottom: clamp(6px, 1vh, 12px);
+}
+
+.scene[data-scene="day"] #dayTitle {
+  font-size: clamp(34px, min(4.2vw, 5.8vh), 64px);
+  line-height: .98;
+}
+
+.scene[data-scene="day"] .date-picker-copy .lead {
+  margin-top: clamp(8px, 1.35vh, 14px);
+  margin-bottom: 0;
+  font-size: clamp(13px, min(1.35vw, 2.05vh), 19px);
+  line-height: 1.42;
+}
+
+.scene[data-scene="day"] .date-picker-card {
+  width: min(760px, 92vw);
+  padding: clamp(11px, min(1.75vw, 1.9vh), 22px);
+  border-radius: clamp(20px, 2.5vh, 30px);
+}
+
+.scene[data-scene="day"] .calendar-toolbar {
+  grid-template-columns: clamp(36px, 5vh, 46px) 1fr clamp(36px, 5vh, 46px);
+  gap: clamp(7px, 1.2vh, 14px);
+  margin-bottom: clamp(7px, 1.35vh, 14px);
+}
+
+.scene[data-scene="day"] .calendar-nav {
+  width: clamp(36px, 5vh, 46px);
+  height: clamp(36px, 5vh, 46px);
+  font-size: clamp(24px, 3.4vh, 30px);
+}
+
+.scene[data-scene="day"] .calendar-month-wrap strong {
+  font-size: clamp(21px, min(2.5vw, 3.6vh), 32px);
+}
+
+.scene[data-scene="day"] .calendar-kicker {
+  font-size: clamp(7px, 1vh, 9px);
+}
+
+.scene[data-scene="day"] .calendar-weekdays,
+.scene[data-scene="day"] .calendar-grid {
+  gap: clamp(3px, .72vh, 7px);
+}
+
+.scene[data-scene="day"] .calendar-weekdays {
+  margin-bottom: clamp(3px, .65vh, 7px);
+}
+
+.scene[data-scene="day"] .calendar-weekdays span {
+  padding: clamp(1px, .35vh, 4px) 0;
+  font-size: clamp(7px, 1vh, 9px);
+}
+
+.scene[data-scene="day"] .calendar-day {
+  /* This is the key fix: height follows viewport height, so zoom never makes
+     six calendar rows grow beyond the visible screen. */
+  aspect-ratio: auto;
+  min-height: 0;
+  height: clamp(34px, min(6.15vh, 7.6vw), 56px);
+  border-radius: clamp(9px, 1.45vh, 15px);
+  font-size: clamp(11px, min(1.15vw, 1.85vh), 15px);
+}
+
+.scene[data-scene="day"] .calendar-day.is-start::after,
+.scene[data-scene="day"] .calendar-day.is-end::after {
+  width: clamp(12px, 1.8vh, 16px);
+  height: clamp(12px, 1.8vh, 16px);
+  top: clamp(3px, .55vh, 5px);
+  right: clamp(3px, .65vh, 6px);
+  font-size: clamp(6px, .85vh, 8px);
+}
+
+.scene[data-scene="day"] .calendar-selection {
+  gap: clamp(9px, 1.5vh, 18px);
+  margin-top: clamp(7px, 1.25vh, 14px);
+  padding: clamp(9px, 1.25vh, 14px) clamp(12px, 1.25vw, 18px);
+  border-radius: clamp(14px, 2vh, 20px);
+}
+
+.scene[data-scene="day"] .calendar-selection strong {
+  font-size: clamp(15px, min(1.8vw, 2.65vh), 23px);
+}
+
+.scene[data-scene="day"] .calendar-selection small {
+  margin-top: 3px;
+  font-size: clamp(8px, 1.15vh, 10px);
+}
+
+.scene[data-scene="day"] .calendar-continue {
+  min-height: clamp(40px, 5.2vh, 46px);
+  padding-inline: clamp(16px, 1.8vw, 24px);
+  font-size: clamp(12px, min(1vw, 1.65vh), 15px);
+}
+
+/* Short desktop/laptop windows, including common 125%-175% browser zoom. */
+@media (max-height: 760px) and (min-width: 621px) {
+  .scene[data-scene="day"] { padding-top: 54px; padding-bottom: 8px; }
+  .scene[data-scene="day"] .date-picker-copy { margin-bottom: 6px; }
+  .scene[data-scene="day"] .date-picker-copy .lead { margin-top: 5px; }
+  .scene[data-scene="day"] .date-picker-card { padding: 9px 14px; }
+  .scene[data-scene="day"] .calendar-toolbar { margin-bottom: 5px; }
+  .scene[data-scene="day"] .calendar-day { height: clamp(31px, 5.75vh, 42px); }
+  .scene[data-scene="day"] .calendar-selection { margin-top: 5px; padding-block: 7px; }
+}
+
+/* Very short viewports: keep everything reachable even at aggressive zoom. */
+@media (max-height: 610px) and (min-width: 621px) {
+  .scene[data-scene="day"] {
+    place-items: start center;
+    padding-top: 50px;
+  }
+  .scene[data-scene="day"] #dayTitle { font-size: 30px; }
+  .scene[data-scene="day"] .date-picker-copy .lead { font-size: 11px; }
+  .scene[data-scene="day"] .calendar-day { height: 30px; }
+  .scene[data-scene="day"] .calendar-selection small { display: none; }
+}
+
+@media (max-width: 620px) {
+  .scene[data-scene="day"] {
+    padding-top: clamp(54px, 8vh, 66px);
+    padding-inline: 8px;
+    padding-bottom: 8px;
+  }
+  .scene[data-scene="day"] .date-picker-card { width: min(100%, 520px); padding: 10px; }
+  .scene[data-scene="day"] .calendar-day {
+    height: clamp(32px, min(5.8vh, 11vw), 42px);
+  }
+  .scene[data-scene="day"] .calendar-selection {
+    grid-template-columns: 1fr;
+    gap: 7px;
+    text-align: center;
+  }
+  .scene[data-scene="day"] .calendar-continue { width: 100%; }
 }
